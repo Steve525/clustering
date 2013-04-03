@@ -53,7 +53,7 @@ public class MLSystemManager {
 		data.loadArff(fileName);
 		if (normalize)
 		{
-			System.out.println("Using normalized data\n");
+//			System.out.println("Using normalized data\n");
 			data.normalize();
 		}
 
@@ -69,7 +69,11 @@ public class MLSystemManager {
 		if (evalMethod.equals("training"))
 		{
 //			System.out.println("Calculating accuracy on training set...\n");
+<<<<<<< HEAD
 			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() - 1);
+=======
+			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() );
+>>>>>>> d812b3e466485f472377bc8f79e3b45ed1b96e37
 			Matrix labels = new Matrix(data, 0, data.cols() - 1, data.rows(), 1);
 			Matrix confusion = new Matrix();
 			double startTime = System.currentTimeMillis();
