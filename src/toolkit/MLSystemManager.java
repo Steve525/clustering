@@ -70,7 +70,11 @@ public class MLSystemManager {
 		{
 //			System.out.println("Calculating accuracy on training set...\n");
 <<<<<<< HEAD
+<<<<<<< HEAD
 			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() - 1);
+=======
+			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() );
+>>>>>>> d812b3e466485f472377bc8f79e3b45ed1b96e37
 =======
 			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() );
 >>>>>>> d812b3e466485f472377bc8f79e3b45ed1b96e37

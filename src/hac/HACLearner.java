@@ -40,7 +40,12 @@ public class HACLearner extends SupervisedLearner {
 		// Change this to change the given linking rule.
 //		LinkingRule howToCluster = new SingleLinkingRule();
 <<<<<<< HEAD
+<<<<<<< HEAD
 		LinkingRule howToCluster = new CompleteLinkingRule();
+=======
+//		LinkingRule howToCluster = new CompleteLinkingRule();
+		LinkingRule howToCluster = new AverageLinkingRule();
+>>>>>>> d812b3e466485f472377bc8f79e3b45ed1b96e37
 =======
 //		LinkingRule howToCluster = new CompleteLinkingRule();
 		LinkingRule howToCluster = new AverageLinkingRule();
