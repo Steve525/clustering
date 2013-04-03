@@ -29,7 +29,7 @@ public class MLSystemManager {
 			throw new Exception("Unrecognized model: " + model);
 	}
 
-	public void run(String[] args) throws Exception {
+	public void run(String[] args, int _k) throws Exception {
 
 		//args = new String[]{"-L", "baseline", "-A", "data/iris.arff", "-E", "cross", "10", "-N"};
 
@@ -58,31 +58,31 @@ public class MLSystemManager {
 		}
 
 		// Print some stats
-		System.out.println();
-		System.out.println("Dataset name: " + fileName);
-		System.out.println("Number of instances: " + data.rows());
-		System.out.println("Number of attributes: " + data.cols());
-		System.out.println("Learning algorithm: " + learnerName);
-		System.out.println("Evaluation method: " + evalMethod);
+//		System.out.println();
+//		System.out.println("Dataset name: " + fileName);
+//		System.out.println("Number of instances: " + data.rows());
+//		System.out.println("Number of attributes: " + data.cols());
+//		System.out.println("Learning algorithm: " + learnerName);
+//		System.out.println("Evaluation method: " + evalMethod);
 		System.out.println();
 
 		if (evalMethod.equals("training"))
 		{
-			System.out.println("Calculating accuracy on training set...");
-			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() - 1);
+//			System.out.println("Calculating accuracy on training set...\n");
+			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols());
 			Matrix labels = new Matrix(data, 0, data.cols() - 1, data.rows(), 1);
 			Matrix confusion = new Matrix();
 			double startTime = System.currentTimeMillis();
-			learner.train(features, labels);
-			double elapsedTime = System.currentTimeMillis() - startTime;
-			System.out.println("Time to train (in seconds): " + elapsedTime / 1000.0);
-			double accuracy = learner.measureAccuracy(features, labels, confusion);
-			System.out.println("Training set accuracy: " + accuracy);
-			if(printConfusionMatrix) {
-				System.out.println("\nConfusion matrix: (Row=target value, Col=predicted value)");
-				confusion.print();
-				System.out.println("\n");
-			}
+			learner.train(features, labels, _k);
+//			double elapsedTime = System.currentTimeMillis() - startTime;
+//			System.out.println("Time to train (in seconds): " + elapsedTime / 1000.0);
+//			double accuracy = learner.measureAccuracy(features, labels, confusion);
+//			System.out.println("Training set accuracy: " + accuracy);
+//			if(printConfusionMatrix) {
+//				System.out.println("\nConfusion matrix: (Row=target value, Col=predicted value)");
+//				confusion.print();
+//				System.out.println("\n");
+//			}
 		}
 		else if (evalMethod.equals("static"))
 		{
@@ -287,6 +287,8 @@ public class MLSystemManager {
 	public static void main(String[] args) throws Exception
 	{
 		MLSystemManager ml = new MLSystemManager();
-		ml.run(args);
+		for (int i = 1; i <= 10; i++) {
+			ml.run(args, 4);
+		}
 	}
 }

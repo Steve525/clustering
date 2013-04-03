@@ -13,8 +13,9 @@ public abstract class SupervisedLearner {
 
 	// Before you call this method, you need to divide your data
 	// into a feature matrix and a label matrix.
-	public abstract void train(Matrix features, Matrix labels) throws Exception;
+	public abstract void train(Matrix features, Matrix labels, int k) throws Exception;
 
+	public void train(Matrix features, Matrix labels) throws Exception {}
 	// A feature vector goes in. A label vector comes out. (Some supervised
 	// learning algorithms only support one-dimensional label vectors. Some
 	// support multi-dimensional label vectors.)

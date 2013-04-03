@@ -3,8 +3,12 @@ package kmeans;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 
 import toolkit.Matrix;
@@ -18,22 +22,81 @@ public class KMeansLearner extends SupervisedLearner {
 	private DecimalFormat df;
 	
 	public KMeansLearner() {
-		_k = 5;
-		df = new DecimalFormat("0.###");
+		_k = 4;
+		df = new DecimalFormat("0.######");
 	}
 	
 	@Override
-	public void train(Matrix features, Matrix labels) throws Exception {
-
+	public void train(Matrix features, Matrix labels, int k) throws Exception {
+		
+		System.out.println("k = " + k);
+		
 		List<Cluster> clusters = new ArrayList<Cluster>();
-		for (int i = 0; i < _k; i++) {
-			clusters.add(new Cluster(i, features.row(i)));
+		for (int i = 0; i < k; i++) {
+			int x = (int) (Math.random() * features.rows());
+//			System.out.println(x + " ");
+			clusters.add(new Cluster(i, features.row(x)));
+		}
+			
+		initialClusterAssignment(features, clusters);
+				
+		double sse = 0;
+		double prev_sse = 0;
+		boolean keepGoing = true;
+		
+		for (Cluster cluster : clusters) {
+			sse += cluster.getSSE(features);
+		}
+//		System.out.println("Sum squared-distance of" +
+//				" each row with its centroid = " 
+//				+ sse);
+		
+		while (keepGoing) {
+			
+			prev_sse = sse;
+			sse = 0;
+			
+			
+			for (Cluster cluster : clusters) {
+				cluster.updateCentroid(features);
+			}
+			
+//			System.out.println("============================================" +
+//					"===========================================");
+//			System.out.println("Recomputing the centroids of each cluster...");
+//			printCentroids(features, clusters);
+			
+			reassignInstances(features, clusters);
+			
+			
+//			System.out.println("The cluster assignments are:");
+			for (Cluster cluster : clusters) {
+//				cluster.printInstances();
+//				System.out.println("# of instances: " + cluster._instances.size() +
+//						" : SSE = " + cluster.getSSE(features));
+			}			
+			
+			for (Cluster cluster : clusters) {
+				sse += cluster.getSSE(features);
+			}
+//			System.out.println("Sum squared-distance of" +
+//					" each row with its centroid = " 
+//					+ sse);
+			if (Math.abs(sse - prev_sse) < 0.0001)
+				keepGoing = false;
 		}
 		
-		printCentroid(features, clusters);
-		System.out.println("Assigning each row to the cluster of " +
-				"the nearest centroid...");
-			
+		System.out.println(sse);
+		
+	}
+
+	private void initialClusterAssignment(Matrix features
+										, List<Cluster> clusters) {
+		
+//		printCentroids(features, clusters);
+//		System.out.println("Assigning each row to the cluster of " +
+//				"the nearest centroid...");
+		
 		for (int i = 0; i < features.rows(); i++) {
 			
 			int correctCluster = -1;
@@ -41,7 +104,7 @@ public class KMeansLearner extends SupervisedLearner {
 			for (Cluster cluster : clusters) {
 				double distanceToCentroid = 
 						getEuclidDistance(features.row(i)
-										, cluster._meanVector
+										, cluster._centroid
 										, features);
 				
 				if (distanceToCentroid < min) {
@@ -53,61 +116,82 @@ public class KMeansLearner extends SupervisedLearner {
 			
 		}
 		
-		System.out.println("The cluster assignments are:");
+//		System.out.println("The cluster assignments are:");
 		for (Cluster cluster : clusters) {
 			cluster.printInstances();
-			System.out.println(" (" + cluster._instances.size() + ")");
+//			System.out.println("# of instances: " + cluster._instances.size() +
+//					" : SSE = " + cluster.getSSE(features));
 		}
-		
-		
-		
-		boolean change = true;
-//		while (change) {
-			for (Cluster cluster : clusters) {
-				for (int instance : cluster._instances) {
-					
-					
-					double internalDistance =
-							getEuclidDistance(features.row(instance)
-											, cluster._meanVector
-											, features);
-					
-					for (Cluster otherCluster : clusters) {
-						
-						double externalDistance =
-								getEuclidDistance(features.row(instance)
-												, otherCluster._meanVector
-												, features);
-						
-						if (externalDistance < internalDistance) {
-							cluster.removeInstance(instance);
-							otherCluster.addInstance(instance);
-							change = true;
-						}
-						else
-						{
-							change = false;
-						}
-					}
-					
-					
-				}
-			}
-//		}
-		
-			for (Cluster cluster : clusters) {
-				cluster.printInstances();
-				System.out.println(" (" + cluster._instances.size() + ")");
-			}
 		
 	}
 
-	private void printCentroid(Matrix features, List<Cluster> clusters) {
+	private void reassignInstances(Matrix features, List<Cluster> clusters) {
+		
+//		System.out.println("Reassigning each row to the cluster of " +
+//				"the nearest centroid...");
+		List<Map<Integer, Cluster>> instancesToClusters = 
+				new ArrayList<Map<Integer, Cluster>>();
+		for (Cluster cluster : clusters) {
+			for (int instance : cluster._instances) {
+				
+				double internalDistance =
+						getEuclidDistance(features.row(instance)
+										, cluster._centroid
+										, features);
+				
+				double min = Double.MAX_VALUE;
+				Cluster newCluster = null;
+				int inst = -1;
+				for (Cluster otherCluster : clusters) {
+					
+					if (otherCluster != cluster) {
+						double externalDistance =
+								getEuclidDistance(features.row(instance)
+												, otherCluster._centroid
+												, features);
+						
+						if (externalDistance < internalDistance) {
+							if (min > externalDistance) {
+								min = externalDistance;
+								newCluster = otherCluster;
+								inst = instance;
+							}
+						}
+					}
+					
+				}
+				if (newCluster != null) {
+					Map<Integer, Cluster> relocation = 
+							new HashMap<Integer, Cluster>();
+					relocation.put(inst, newCluster);
+					instancesToClusters.add(relocation);
+				}
+			}
+			if (!instancesToClusters.isEmpty()) {
+				for (Map<Integer, Cluster> relocation : instancesToClusters) {
+					for (Entry<Integer, Cluster> entry : 
+						relocation.entrySet()) {
+						
+						int i = entry.getKey();
+						Cluster someCluster = entry.getValue();
+						cluster.removeInstance(i);
+						someCluster.addInstance(i);
+						
+					}
+				}
+			}
+			instancesToClusters.clear();
+			
+		}
+		
+	}
+
+	private void printCentroids(Matrix features, List<Cluster> clusters) {
 		for (Cluster cluster : clusters) {
 			System.out.print("Centroid " + cluster._id + " = ");
 			for (int i = 1; i < features.cols(); i++) {
 				
-				double val = features.get(cluster._id, i);
+				double val = cluster._centroid[i];
 				if (val == MISSING)
 					System.out.print("?");
 				else {
@@ -126,27 +210,26 @@ public class KMeansLearner extends SupervisedLearner {
 			}
 		}
 	}
-
-	@Override
-	public void predict(double[] features, double[] labels) throws Exception {
-		// TODO Auto-generated method stub
-
-	}
 	
 	private class Cluster {
 		
 		// instances that are in the cluster
 		private Set<Integer> _instances;
 		// the centroid
-		private double[] _meanVector;
+		private double[] _centroid;
 		// group number
 		private int _id;
+		
+		private double _sse;
 		
 		public Cluster(int id, double[] meanVector) {
 			_id = id;
 			_instances = new HashSet<Integer>();
-			_meanVector = meanVector;
+			_centroid = meanVector;
+			_sse = 0;
 		}
+		
+		public Set<Integer> getInstances() { return _instances; }
 		
 		public void addInstance(int instance) {
 			_instances.add(instance);
@@ -157,12 +240,58 @@ public class KMeansLearner extends SupervisedLearner {
 		}
 		
 		public void printInstances() {
-			System.out.print("Cluster " + _id + " = ");
-			for (int instance : _instances) {
-				System.out.print(instance + ", ");
-			}
-//			System.out.println();
+//			System.out.print("Cluster " + _id + " = ");
+//			List<Integer> sortedList = new ArrayList<Integer>();
+//			sortedList.addAll(_instances);
+//			Collections.sort(sortedList);
+//			for (int instance : sortedList) {
+//				System.out.print(instance + ", ");
+//			}
 		}
+		
+		public void updateCentroid(Matrix features) {
+			
+			_sse = 0;
+			for (int i = 1; i < features.cols(); i++) {
+				
+				int attributeValues = features.valueCount(i);
+				if (attributeValues == 0) {
+					
+					_sse += 
+							features.calculateContinuousSSE(i
+									, _instances
+									, _centroid[i]);
+					_centroid[i] =
+							features.averagedContinuousValue(i, _instances);
+					
+					
+				}
+				else {
+					
+					_sse += features.calculateNominalSSE(i
+							, _instances
+							, _centroid[i]);
+					_centroid[i] = features.mostCommonValue(i, _instances);
+					
+					
+				}
+				
+			}
+			
+		}
+		
+		public double getSSE (Matrix features) {
+			
+			double sse = 0;
+			for (int instance : _instances) {
+				double[] x = features.row(instance);
+				sse += getEuclidDistance(x , _centroid, features);
+			}
+			
+			return sse;
+		}
+		
+		
 	}
 	
 	
@@ -191,6 +320,8 @@ public class KMeansLearner extends SupervisedLearner {
 	private static double getEuclidDistance ( double[] x
 											, double[] y
 											, Matrix features) {
+		
+		assert(x.length == y.length);
 		double distance = 0;
 		for (int k = 1; k < x.length; k++) {
 			
@@ -210,7 +341,7 @@ public class KMeansLearner extends SupervisedLearner {
 			}
 			
 		}
-		return distance;
+		return Math.abs(distance);
 	}
 	
 	private int findNextFarthestPoint(Matrix features
@@ -243,4 +374,11 @@ public class KMeansLearner extends SupervisedLearner {
 		
 		return nextFarthestPoint;
 	}
+	
+	@Override
+	public void predict(double[] features, double[] labels) throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+	
 }

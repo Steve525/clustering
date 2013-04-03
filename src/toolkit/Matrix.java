@@ -5,7 +5,9 @@ package toolkit;
 // ----------------------------------------------------------------
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -297,6 +299,117 @@ public class Matrix {
 			}
 		}
 		return val;
+	}
+	
+	public double mostCommonValue(int col, Set<Integer> instances) {
+		
+		TreeMap<Double, Integer> valuesToCounts =
+				new TreeMap<Double, Integer>();
+		for(int i = 0; i < rows(); i++) {
+			
+			if (instances.contains(i)) {
+				double v = get(i, col);
+				if(v != MISSING)
+				{
+					Integer count = valuesToCounts.get(v);
+					if(count == null)
+						valuesToCounts.put(v, new Integer(1));
+					else
+						valuesToCounts.put(v
+										, new Integer(count.intValue() + 1));
+				}
+			}
+			
+		}
+		int maxCount = 0;
+		double val = MISSING;
+		Iterator< Entry<Double, Integer> > it =
+				valuesToCounts.entrySet().iterator();
+		
+		while( it.hasNext() )
+		{
+			Entry<Double, Integer> e = it.next();
+			if(e.getValue() > maxCount)
+			{
+				maxCount = e.getValue();
+				val = e.getKey();
+			}
+		}
+		
+		return val;
+		
+	}
+	
+	public double averagedContinuousValue(int col, Set<Integer> instances) {
+		
+		double total = 0;
+		int counter = 0;
+		for(int i = 0; i < rows(); i++) {
+			
+			if (instances.contains(i)) {
+				double v = get(i, col);
+				if(v != MISSING)
+				{
+					total += v;
+					counter++;
+				}
+			}
+			
+		}
+		
+		if (counter == 0)
+			return Double.MAX_VALUE;
+		total = total / counter;
+		return total;
+		
+	}
+	
+	public double calculateContinuousSSE(int col
+							, Set<Integer> instances
+							, double centroidValue) {
+		
+		double sse = 0;
+		for(int i = 0; i < rows(); i++) {
+			
+			if (instances.contains(i)) {
+				double v = get(i, col);
+				if(v != MISSING) {
+					sse += Math.pow( (centroidValue - v), 2);
+				}
+				else {
+					sse += 1;
+				}
+			}
+			
+		}
+		
+		return sse;
+		
+	}
+	
+	public double calculateNominalSSE (int col
+									, Set<Integer> instances
+									, double centroidValue) {
+		
+		double sse = 0;
+		for(int i = 0; i < rows(); i++) {
+			
+			if (instances.contains(i)) {
+				double v = get(i, col);
+				if (v != MISSING) {
+					if (v != centroidValue) {
+						sse += 1;
+					}
+				}
+				else
+					sse += 1;
+						
+			}
+			
+		}
+		
+		return sse;
+		
 	}
 
 	void normalize() {
