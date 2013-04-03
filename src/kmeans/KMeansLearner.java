@@ -23,7 +23,7 @@ public class KMeansLearner extends SupervisedLearner {
 	
 	public KMeansLearner() {
 		_k = 4;
-		df = new DecimalFormat("0.######");
+		df = new DecimalFormat("0.#");
 	}
 	
 	@Override
@@ -85,6 +85,25 @@ public class KMeansLearner extends SupervisedLearner {
 			if (Math.abs(sse - prev_sse) < 0.0001)
 				keepGoing = false;
 		}
+		
+//		List<double[]> attributeSSE = new ArrayList<double[]>();
+//		for (Cluster cluster : clusters) {
+//			double[] individualSSE = cluster.updateCentroid(features);
+//			attributeSSE.add(individualSSE);
+//		}
+//		double[] totals = new double[features.cols()];
+//		for (double[] x : attributeSSE) {
+//			for (int i = 0; i < x.length; i++) {
+//				totals[i] += x[i];
+//			}
+//		}
+//		for (int i = 0; i < features.cols(); i++)
+//			System.out.print(features.attrName(i) + "\t");
+//		System.out.println();
+//		for (int i = 0; i < totals.length; i++) {
+//			System.out.print(df.format(totals[i]) + "\t");
+//		}
+//		System.out.println();
 		
 		System.out.println(sse);
 		
@@ -222,6 +241,8 @@ public class KMeansLearner extends SupervisedLearner {
 		
 		private double _sse;
 		
+		private double[] _individualSSE;
+		
 		public Cluster(int id, double[] meanVector) {
 			_id = id;
 			_instances = new HashSet<Integer>();
@@ -249,15 +270,16 @@ public class KMeansLearner extends SupervisedLearner {
 //			}
 		}
 		
-		public void updateCentroid(Matrix features) {
+		public double[] updateCentroid(Matrix features) {
 			
 			_sse = 0;
-			for (int i = 1; i < features.cols(); i++) {
+			double[] individualSSE = new double[features.cols()];
+			for (int i = 0; i < features.cols(); i++) {
 				
 				int attributeValues = features.valueCount(i);
 				if (attributeValues == 0) {
 					
-					_sse += 
+					individualSSE[i] = 
 							features.calculateContinuousSSE(i
 									, _instances
 									, _centroid[i]);
@@ -268,7 +290,7 @@ public class KMeansLearner extends SupervisedLearner {
 				}
 				else {
 					
-					_sse += features.calculateNominalSSE(i
+					individualSSE[i] = features.calculateNominalSSE(i
 							, _instances
 							, _centroid[i]);
 					_centroid[i] = features.mostCommonValue(i, _instances);
@@ -277,6 +299,8 @@ public class KMeansLearner extends SupervisedLearner {
 				}
 				
 			}
+			
+			return individualSSE; 
 			
 		}
 		

@@ -39,8 +39,9 @@ public class HACLearner extends SupervisedLearner {
 		// The number of clusters to stop at.
 		
 		// Change this to change the given linking rule.
-		LinkingRule howToCluster = new SingleLinkingRule();
+//		LinkingRule howToCluster = new SingleLinkingRule();
 //		LinkingRule howToCluster = new CompleteLinkingRule();
+		LinkingRule howToCluster = new AverageLinkingRule();
 		
 		// Main clustering algorithm
 		ClusteringAlgorithm algorithm = new ClusteringAlgorithm();
