@@ -36,29 +36,62 @@ public class HACLearner extends SupervisedLearner {
 			clusterNames[i] = i + "";
 		}
 		
-		// The number of clusters to stop at.
 		
 		// Change this to change the given linking rule.
-		LinkingRule howToCluster = new SingleLinkingRule();
-//		LinkingRule howToCluster = new CompleteLinkingRule();
+//		LinkingRule howToCluster = new SingleLinkingRule();
+		LinkingRule howToCluster = new CompleteLinkingRule();
 		
 		// Main clustering algorithm
 		ClusteringAlgorithm algorithm = new ClusteringAlgorithm();
-		
-		Cluster finalCluster = 
+		System.out.println("k = " + k);
+		List<Cluster> finalClusters = 
 				algorithm.performClustering(adjacencyMatrix
 										  , clusterNames
 										  , howToCluster
-										  , k);
-		DendrogramPanel dp = new DendrogramPanel();
-		dp.setModel(finalCluster);
-		
-//		List<Cluster> leafNodes = new ArrayList<Cluster>();
-//		finalCluster.findChildren(leafNodes);
-		
-//		finalCluster.toConsole(0);
+										  , k
+										  , features);
+		int counter = 0;
+		double totalSSE = 0;
+		for (Cluster finalCluster : finalClusters) {
+			Set<Integer> instances = new HashSet<Integer>();
+			finalCluster.findChildren(instances);
+			finalCluster.setAllInstances(instances);
+			finalCluster.updateCentroid(features);
+			totalSSE += finalCluster.getSSE(features);
+//			System.out.println("Cluster " + counter);
+//			printCentroids(features, finalCluster);
+			counter++;
+		}
+		System.out.println(totalSSE);
+//		DendrogramPanel dp = new DendrogramPanel();
+//		dp.setModel(finalCluster);
 //		displayDendrogram(finalCluster);
 		
+	}
+	
+	private void printCentroids(Matrix features, Cluster cluster) {
+		
+		System.out.print("Centroid = ");
+		for (int i = 1; i < features.cols(); i++) {
+			
+			double val = cluster.getCentroid()[i];
+			if (val == MISSING)
+				System.out.print("?");
+			else {
+				int attributeValues = features.valueCount(i);
+				if (attributeValues == 0)
+					System.out.print(df.format(val));
+				else
+					System.out.print(features.attrValue(i, (int) val));
+			}
+			
+			if (i == features.cols()-1)
+				System.out.println();
+			else
+				System.out.print(", ");
+			
+		}
+			
 	}
 	
 	private void displayDendrogram(Cluster root) {

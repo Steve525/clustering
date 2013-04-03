@@ -1,7 +1,11 @@
 package hac;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import toolkit.Matrix;
 
 public class Cluster {
 
@@ -12,6 +16,81 @@ public class Cluster {
 	private List<Cluster> _children;
 
 	private Double _distance;
+	
+	private double[] centroid;
+	
+	private Set<Integer> instances;
+	
+	private static double MISSING = Double.MAX_VALUE;
+	
+	public void setInstance(int i) {
+		instances.add(i);
+	}
+	
+	public Set<Integer> getInstances() { return instances; }
+	
+	public void updateCentroid(Matrix features) {
+		centroid = new double[features.cols()];
+		for (int i = 1; i < features.cols(); i++) {
+			
+			int attributeValues = features.valueCount(i);
+			if (attributeValues == 0) {
+				
+				centroid[i] =
+						features.averagedContinuousValue(i, instances);
+				
+				
+			}
+			else {
+				
+				centroid[i] = features.mostCommonValue(i, instances);
+				
+				
+			}
+			
+		}
+		
+	}
+	
+	public double getSSE (Matrix features) {
+		assert(!instances.isEmpty());
+		double sse = 0;
+		for (int instance : instances) {
+			double[] x = features.row(instance);
+			sse += getEuclidDistance(x , centroid, features);
+		}
+		
+		return sse;
+	}
+	
+	public double[] getCentroid() { return centroid; }
+	
+	private static double getEuclidDistance ( double[] x
+			, double[] y
+			, Matrix features) {
+
+		assert(x.length == y.length);
+		double distance = 0;
+		for (int k = 1; k < x.length; k++) {
+		
+			if (x[k] == MISSING || y[k] == MISSING) {
+				distance += 1;
+			}
+			else {
+				int attributeValues = features.valueCount(k);
+				if (attributeValues == 0) {	// attribute is continuous
+					double tmp = x[k] - y[k];
+					distance += (tmp * tmp);
+				}
+				else {	// attribute is nominal
+					if (x[k] != y[k])
+					distance += 1;
+				}
+			}
+		
+		}
+		return Math.abs(distance);
+	}
 
 	public Double getDistance() {
 		return _distance;
@@ -44,6 +123,7 @@ public class Cluster {
 
 	public Cluster(String name) {
 		this._name = name;
+		instances = new HashSet<Integer>();
 	}
 
 	public String getName() {
@@ -109,16 +189,17 @@ public class Cluster {
         }
     }
     
-    public void findChildren(List<Cluster> leafNodes) {
+    public void findChildren(Set<Integer> instances) {
     	if (isLeaf()) {
-    		leafNodes.add(this);
-    		System.out.print("Found a leaf: " + getName() + " ");
-    		
-    		System.out.println(this._parent._distance);
+    		instances.add(Integer.parseInt(_name));
     	}
     	
     	for (Cluster child : getChildren())
-    		child.findChildren(leafNodes);
+    		child.findChildren(instances);
+    }
+    
+    public void setAllInstances(Set<Integer> i) {
+    	this.instances = i;
     }
 
     public double getTotalDistance() {

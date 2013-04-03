@@ -69,10 +69,11 @@ public class MLSystemManager {
 		if (evalMethod.equals("training"))
 		{
 //			System.out.println("Calculating accuracy on training set...\n");
-			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols());
+			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() - 1);
 			Matrix labels = new Matrix(data, 0, data.cols() - 1, data.rows(), 1);
 			Matrix confusion = new Matrix();
 			double startTime = System.currentTimeMillis();
+			features.shuffle(rand);
 			learner.train(features, labels, _k);
 //			double elapsedTime = System.currentTimeMillis() - startTime;
 //			System.out.println("Time to train (in seconds): " + elapsedTime / 1000.0);
@@ -287,8 +288,8 @@ public class MLSystemManager {
 	public static void main(String[] args) throws Exception
 	{
 		MLSystemManager ml = new MLSystemManager();
-		for (int i = 1; i <= 10; i++) {
-			ml.run(args, 4);
+		for (int i = 2; i <= 7; i++) {
+			ml.run(args, i);
 		}
 	}
 }

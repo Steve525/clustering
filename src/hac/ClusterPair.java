@@ -6,19 +6,19 @@ public class ClusterPair implements Comparable<ClusterPair> {
 	private Cluster _rCluster;
 	private Double _linkageDistance;
 
-	public Cluster getlCluster() {
+	public Cluster getLeft() {
 		return _lCluster;
 	}
 
-	public void setlCluster(Cluster lCluster) {
+	public void setLeft(Cluster lCluster) {
 		this._lCluster = lCluster;
 	}
 
-	public Cluster getrCluster() {
+	public Cluster getRight() {
 		return _rCluster;
 	}
 
-	public void setrCluster(Cluster rCluster) {
+	public void setRight(Cluster rCluster) {
 		this._rCluster = rCluster;
 	}
 
@@ -55,7 +55,7 @@ public class ClusterPair implements Comparable<ClusterPair> {
 			}
 			if (_rCluster != null) {
 				if (sb.length() > 0) {
-					sb.append("&");
+					sb.append("\n");
 				}
 				sb.append(_rCluster.getName());
 			}
@@ -67,6 +67,13 @@ public class ClusterPair implements Comparable<ClusterPair> {
 		cluster.addChild(_rCluster);
 		_lCluster.setParent(cluster);
 		_rCluster.setParent(cluster);
+		
+//		for (int instance : _lCluster.getInstances()) {
+//			cluster.setInstance(instance);			
+//		}
+//		for (int instance : _rCluster.getInstances()) {
+//			cluster.setInstance(instance);
+//		}
 		
 		return cluster;
 		

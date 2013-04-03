@@ -3,10 +3,15 @@ package hac;
 import java.util.ArrayList;
 import java.util.List;
 
+import toolkit.Matrix;
+
 public class ClusteringAlgorithm {
 
-	public Cluster performClustering(double[][] distances,
-	        String[] clusterNames, LinkingRule linkingRule, int k) {
+	public List<Cluster> performClustering(double[][] distances
+			, String[] clusterNames
+			, LinkingRule linkingRule
+			, int k
+			, Matrix features) {
 
 		/* Argument checks */
 		if (distances == null || distances.length == 0
@@ -31,7 +36,7 @@ public class ClusteringAlgorithm {
 								   , k);
 		int counter = 0;
 		while (!builder.isTreeComplete()) {
-			builder.agglomerate(linkingRule, counter);
+			builder.agglomerate(linkingRule, counter, features);
 			counter++;
 		}
 
@@ -45,8 +50,8 @@ public class ClusteringAlgorithm {
 			for (int row = col + 1; row < clusters.size(); row++) {
 				ClusterPair link = new ClusterPair();
 				link.setLinkageDistance(distances[col][row]);
-				link.setlCluster(clusters.get(col));
-				link.setrCluster(clusters.get(row));
+				link.setLeft(clusters.get(col));
+				link.setRight(clusters.get(row));
 				linkages.add(link);
 			}
 		}
