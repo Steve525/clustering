@@ -1,5 +1,7 @@
 package kmeans;
 
+import hac.Cluster;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -86,6 +88,21 @@ public class KMeansLearner extends SupervisedLearner {
 				keepGoing = false;
 		}
 		
+		double min = 100000;
+		for (Cluster finalCluster : clusters) {
+			for (Cluster otherCluster : clusters) {
+				if (otherCluster != finalCluster) {
+					double distance = 
+							getEuclidDistance(otherCluster._centroid
+									, finalCluster._centroid
+									, features);
+					if (min > distance)
+						min = distance;
+				}
+			}
+		}
+		System.out.println(min);
+		
 //		List<double[]> attributeSSE = new ArrayList<double[]>();
 //		for (Cluster cluster : clusters) {
 //			double[] individualSSE = cluster.updateCentroid(features);
@@ -105,7 +122,7 @@ public class KMeansLearner extends SupervisedLearner {
 //		}
 //		System.out.println();
 		
-		System.out.println(sse);
+//		System.out.println(sse);
 		
 	}
 

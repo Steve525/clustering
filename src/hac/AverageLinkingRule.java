@@ -6,18 +6,16 @@ public class AverageLinkingRule implements LinkingRule {
 
 	@Override
 	public Double calculateDistance(Collection<Double> distances) {
-		double sum = 0;
-		double result;
-
+		double averageDistance = 0;
 		for (Double dist : distances) {
-			sum += dist;
+			averageDistance += dist;
 		}
 		if (distances.size() > 0) {
-			result = sum / distances.size();
+			averageDistance = averageDistance / distances.size();
 		} else {
-			result = 0.0;
+			averageDistance = 0;
 		}
-		return result;
+		return averageDistance;
 	}
 
 }

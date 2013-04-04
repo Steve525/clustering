@@ -55,7 +55,7 @@ public class ClusterPair implements Comparable<ClusterPair> {
 			}
 			if (_rCluster != null) {
 				if (sb.length() > 0) {
-					sb.append("\n");
+					sb.append(" AND ");
 				}
 				sb.append(_rCluster.getName());
 			}

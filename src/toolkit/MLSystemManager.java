@@ -69,15 +69,7 @@ public class MLSystemManager {
 		if (evalMethod.equals("training"))
 		{
 //			System.out.println("Calculating accuracy on training set...\n");
-<<<<<<< HEAD
-<<<<<<< HEAD
-			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() - 1);
-=======
 			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() );
->>>>>>> d812b3e466485f472377bc8f79e3b45ed1b96e37
-=======
-			Matrix features = new Matrix(data, 0, 0, data.rows(), data.cols() );
->>>>>>> d812b3e466485f472377bc8f79e3b45ed1b96e37
 			Matrix labels = new Matrix(data, 0, data.cols() - 1, data.rows(), 1);
 			Matrix confusion = new Matrix();
 			double startTime = System.currentTimeMillis();
@@ -296,8 +288,8 @@ public class MLSystemManager {
 	public static void main(String[] args) throws Exception
 	{
 		MLSystemManager ml = new MLSystemManager();
-		for (int i = 2; i <= 7; i++) {
-			ml.run(args, i);
-		}
+//		for (int i = 2; i <= 7; i++) {
+			ml.run(args, 4);
+//		}
 	}
 }

@@ -3,7 +3,9 @@ package hac;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import toolkit.Matrix;
 
@@ -63,13 +65,18 @@ public class HierarchyBuilder {
 				distances.add(newLinkage);
 
 			}
-//			System.out.println("Iteration " + counter);
-//			for (Cluster child : newCluster.getChildren()) {
-//				System.out.print("Child: " + child.getName() + " ");
-//				newCluster.setInstance(Integer.parseInt(child.getName()));
-//			}
-//			
-//			System.out.println("========================");
+			
+			Set<Integer> instances = new HashSet<Integer>();
+			newCluster.findChildren(instances);
+			newCluster.setAllInstances(instances);
+			newCluster.updateCentroid(features);
+			double sse = newCluster.getSSE(features);
+			
+			
+			System.out.println("Iteration " + counter);
+			System.out.println("Merging : " + newCluster.getName());
+			System.out.println("Total SSE : " + sse);
+			System.out.println("========================");
 				
 			
 			clusters.add(newCluster);

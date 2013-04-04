@@ -39,17 +39,8 @@ public class HACLearner extends SupervisedLearner {
 		
 		// Change this to change the given linking rule.
 //		LinkingRule howToCluster = new SingleLinkingRule();
-<<<<<<< HEAD
-<<<<<<< HEAD
 		LinkingRule howToCluster = new CompleteLinkingRule();
-=======
-//		LinkingRule howToCluster = new CompleteLinkingRule();
-		LinkingRule howToCluster = new AverageLinkingRule();
->>>>>>> d812b3e466485f472377bc8f79e3b45ed1b96e37
-=======
-//		LinkingRule howToCluster = new CompleteLinkingRule();
-		LinkingRule howToCluster = new AverageLinkingRule();
->>>>>>> d812b3e466485f472377bc8f79e3b45ed1b96e37
+//		LinkingRule howToCluster = new AverageLinkingRule();
 		
 		// Main clustering algorithm
 		ClusteringAlgorithm algorithm = new ClusteringAlgorithm();
@@ -62,17 +53,36 @@ public class HACLearner extends SupervisedLearner {
 										  , features);
 		int counter = 0;
 		double totalSSE = 0;
+		System.out.println("=`=`=`=`=`=`=`=`=`=`=`=`=`=`=`\n");
+		System.out.println("FINAL\n");
 		for (Cluster finalCluster : finalClusters) {
 			Set<Integer> instances = new HashSet<Integer>();
 			finalCluster.findChildren(instances);
 			finalCluster.setAllInstances(instances);
 			finalCluster.updateCentroid(features);
 			totalSSE += finalCluster.getSSE(features);
-//			System.out.println("Cluster " + counter);
-//			printCentroids(features, finalCluster);
+			System.out.println("Cluster " + counter);
+			printCentroids(features, finalCluster);
 			counter++;
 		}
-		System.out.println(totalSSE);
+		
+		System.out.println("Total SSE : " + totalSSE);
+		
+		double min = 100000;
+		for (Cluster finalCluster : finalClusters) {
+			for (Cluster otherCluster : finalClusters) {
+				if (otherCluster != finalCluster) {
+					double distance = 
+							getEuclidDistance(otherCluster.getCentroid()
+									, finalCluster.getCentroid()
+									, features);
+					if (min > distance)
+						min = distance;
+				}
+			}
+		}
+//		System.out.println(min);
+//		System.out.println(totalSSE);
 //		DendrogramPanel dp = new DendrogramPanel();
 //		dp.setModel(finalCluster);
 //		displayDendrogram(finalCluster);
